@@ -1,5 +1,6 @@
 import { GraphQLServer } from 'graphql-yoga';
 import uuidv4 from 'uuid/v4';
+import { emit } from 'nodemon';
 
 const comments = [
     {
@@ -70,7 +71,7 @@ const users = [
 const typeDefs = `
   type Mutation {
     createUser(name: String!, email: String!, age: Int): User!,
-    createPost(title: String!, body: String!, published: Boolean!, name: String!): Post!
+    createPost(title: String!, body: String!, published: Boolean!, author: String!): Post!
   },
 
   type Query {
@@ -122,26 +123,28 @@ const resolvers = {
                 id: uuidv4(),
                 name: args.name,
                 email: args.email,
-                age: args.age
+                age: args.age,
+                author: args.age
             }
 
             users.push(user)
             return user
         },
         createPost(parent, args, ctx, info) {
+            
             const emailUsed = users.some((user) => user.email === args.email );
+            console.log(emailUsed)
             if(!emailUsed) {
                 throw new Error('can\'t do that!!')
             }
-
             const post = {
                 id: uuidv4(),
                 title: args.title,
                 body: args.body,
                 published: args.published,
-                author: args.author
+                author: args.name
             }
-
+            console.log(`your args ${JSON.stringify(post)}`)
             posts.push(post)
             return post
         }
@@ -176,11 +179,9 @@ const resolvers = {
     },  
     Post: {
         author(parent, args, ctx, info) {
-            if(!args){
-                return posts;
-            }
+            // console.log(`Here are your args ${JSON.stringify(args)}`)
             return users.find((user) => {
-                return user.name === parent.author
+                return user.name === parent.author 
             })
         },
         comments(parent, args, ctx, info) {
@@ -191,6 +192,7 @@ const resolvers = {
     },
     User: {
         posts(parent, args, ctx, info) {
+            console.log(`here is some more shit: ${post}`)
             return posts.filter((post) => 
                 post.author === parent.name || post.author === parent.id
             )
@@ -208,6 +210,7 @@ const resolvers = {
             )
         },
         post(parent, args, ctx, info) {
+            console.log(`here is some more shit: ${post}`)
             return posts.filter((post) => 
                 post.id === parent.post
             )
