@@ -77,6 +77,24 @@ const Mutation = {
 
         return post
     },
+    updatePost(parent, args, { db }, info) {
+        const thePost = db.posts.find((post) => post.id === args.id)
+        if(!thePost) {
+            throw new Error('Post not found')
+        }
+
+        if(typeof args.data.title === 'string') {
+            thePost.title = args.data.title
+        }
+        if(typeof args.data.body === 'string') {
+            thePost.body = args.data.body
+        }
+        if(typeof args.data.published === 'boolean') {
+            thePost.published = args.data.published
+        }
+       
+        return thePost
+    },
     deletePost(parent, args, { db }, info) {
         const postIndex = db.posts.findIndex((post) => post.id === args.id)
 
