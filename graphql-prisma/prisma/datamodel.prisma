@@ -12,3 +12,10 @@ type Post {
   body: String!
   author: User!
 }
+
+type Comment {
+  id: ID! @id @unique,
+  text: String!,
+  author: User!,
+  post: Post!
+}
